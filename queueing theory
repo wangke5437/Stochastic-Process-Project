@@ -1,0 +1,46 @@
+#M/M/1 queue theory
+p <- 0.8
+l <- 2                 #arrival rate lambda
+m <- l/p               #service rate miu
+N <- 20000
+n <- rpois(1,l*N)
+
+a <- sort(runif(n,0,N))#arrival time
+st <- matrix(0,n,1)    #start service time
+s <- matrix(0,n,1)     #service time 
+f <- matrix(0,n,1)     #finish time
+r <- matrix(0,n,1)     #response time
+q <- matrix(0,n,1)     #queueing time
+s[,1] <- rexp(n,m)
+st[1,1] <- a[1] 
+f[0,1] <- 0
+for (j in 1:n) {
+  st[j,1] <- max(a[j],f[j-1,1])
+  f[j,1] <- st[j,1] + s[j,1]
+  r[j,1] <- f[j,1] - a[j]
+  q[j,1] <- st[j,1] - a[j]
+}
+incount <- matrix(0,N,1)
+outcount <- matrix(0,N,1)
+for(k in 1:N){
+  
+for (i in 1:n){
+  
+  if (k-1<a[i]&a[i]<k)
+  incount[k] <- incount[k] + 1
+  if (k-1<a[i]&a[i]<k&f[i,1]<k)
+    outcount[k] <- outcount[k] + 1
+}
+}
+count <- incount - outcount
+jobs_var <- var(count)
+jobs_mean <- mean(count)
+print(paste("the mean of the number of jobs in the system is",jobs_mean))
+print(paste("the variance of the number of jobs in the system is",jobs_var))
+
+r_mean <- mean(r)
+q_mean <- mean(q)
+print(paste("the mean response time of jobs is",r_mean))
+print(paste("the mean queueing time of jobs is",q_mean))
+
+
